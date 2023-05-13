@@ -17,3 +17,8 @@ cd src
 uvicorn main:app --reload
 ```
 
+## Deploy
+```bash
+cd src
+uvicorn main:app --host 0.0.0.0 --port 80
+```
