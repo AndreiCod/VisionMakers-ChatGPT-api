@@ -13,12 +13,20 @@ pip install -r requirements.txt
 
 ## Run server locally
 ```bash
-cd src
-uvicorn main:app --reload
+uvicorn src.main:app --reload
 ```
 
 ## Deploy
 ```bash
-cd src
-uvicorn main:app --host 0.0.0.0 --port 80
+uvicorn src.main:app --host 0.0.0.0 --port 80
+```
+
+## Create docker image
+```bash
+docker build -t vision-makers .
+```
+
+## Run docker image
+```bash
+docker run -d --name vision-makers-api -p 80:80 vision-makers
 ```

@@ -75,9 +75,9 @@ def get_last_message() -> str:
 def get_last_message_audio() :
     audio = generate(text=chat_history[-1]["content"], voice="Arnold")
 
-    save(audio, "../audio/audio.wav")
+    save(audio, "./audio/audio.wav")
 
-    return FileResponse("../audio/audio.wav")
+    return FileResponse("./audio/audio.wav")
 
 
 @app.get("/chat/history")
@@ -124,10 +124,10 @@ def get_image_label(file: UploadFile) -> str:
 
 @app.get("/speech-to-text")
 def speech_to_text(file: UploadFile) -> str:
-    with open(f"../audio/{file.filename}", "wb") as buffer:
+    with open(f"./audio/{file.filename}", "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
-    audio_file = open(f"../audio/{file.filename}", "rb")
+    audio_file = open(f"./audio/{file.filename}", "rb")
 
     transcript = openai.Audio.transcribe("whisper-1", audio_file)
 
