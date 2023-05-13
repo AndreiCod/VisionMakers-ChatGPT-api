@@ -7,7 +7,6 @@ COPY ./requirements.txt /src/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /src/requirements.txt
 
 COPY ./src/main.py /src/main.py
-COPY ./.env /src/.env
 
 RUN mkdir /src/models
 RUN mkdir /src/audio

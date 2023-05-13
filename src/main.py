@@ -8,7 +8,7 @@ from elevenlabs import generate, save, set_api_key
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import FileResponse
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 
 import torch
 import torch.nn as nn
@@ -20,7 +20,9 @@ import numpy as np
 
 app = FastAPI()
 
-config = dotenv_values(".env")
+load_dotenv()
+
+config = os.environ
 
 openai.organization = config["OPENAI_ORGANIZATION"]
 openai.api_key = config["OPENAI_API_SECRET"]
@@ -55,7 +57,7 @@ set_api_key(config["ELEVENLABS_API_KEY"])
 
 
 @app.get("/chat/generate_response/")
-def chat_response(message: str) -> str:
+def chat_response(message: str):
     chat_history.append({"role": "user", "content": message})
 
     response = openai.ChatCompletion.create(
@@ -65,7 +67,13 @@ def chat_response(message: str) -> str:
 
     chat_history.append(response.choices[0].message)
 
-    return response.choices[0].message.content
+    print(f'response is : {response.choices[0].message.content}')
+
+    audio = generate(text=chat_history[-1]["content"], voice="Arnold")
+
+    save(audio, "./audio/audio.wav")
+
+    return FileResponse("./audio/audio.wav")
 
 @app.get("/chat/get_last_message")
 def get_last_message() -> str:
@@ -91,7 +99,7 @@ def reset_chat() -> str:
 
     return "Chat history reset"
 
-@app.get("/image/label")
+@app.post("/image/label")
 def get_image_label(file: UploadFile) -> str:
     sample = Image.open(file.file)
     sample = sample.convert('RGB')
@@ -118,11 +126,13 @@ def get_image_label(file: UploadFile) -> str:
         predict = "doritos"
     elif str(torch.argmax(predict.cpu(), axis=1)) == 'tensor([3])':
         predict = "mnm"
+
+    print(f'predict is : {predict}')
     
     return predict
 
 
-@app.get("/speech-to-text")
+@app.post("/speech-to-text")
 def speech_to_text(file: UploadFile) -> str:
     with open(f"./audio/{file.filename}", "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
@@ -130,5 +140,7 @@ def speech_to_text(file: UploadFile) -> str:
     audio_file = open(f"./audio/{file.filename}", "rb")
 
     transcript = openai.Audio.transcribe("whisper-1", audio_file)
+
+    print(f'transcript is : {transcript.text}')
 
     return transcript.text
